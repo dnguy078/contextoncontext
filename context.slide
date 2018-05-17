@@ -41,7 +41,7 @@ When a context is cancelled all context derived from it are also cancelled
 
 * Example context chain
 .code ./context_chain_example.go
-- put some image here
+.image ./images/chain.jpg
 
 * When should you use context.Context
 - Every HTTP/RPC call should have the ability to time out
