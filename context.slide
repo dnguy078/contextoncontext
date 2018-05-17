@@ -1,0 +1,79 @@
+Context on context
+16 May 2018
+Tags: context
+
+Dennis Nguyen
+Software Engineer, Gannett
+dnguy078 @ucr.edu
+
+* Talk Sections
+- Why context exist
+- request cancellation
+- request scoped values
+
+* The problem(s)
+- Every long request should have a timeout
+- Need a way to propagate that timeout across the request
+
+* Expanded
+- What if one request requires multiple HTTP calls to resolve
+- If one of those call fails, it may be worth failing the entire request
+.image ./images/Good.jpg
+
+* Failed request
+.image ./images/failed.jpg
+
+* Fail request early and propagate across other calls
+.image ./images/failearly.jpg
+
+* Context on Context
+- The context package provides a standard way to solve the problems of managing state during a request
+Context addresses:
+- Request scoped data
+- Cancellation, Deadlines, & Timeouts
+- Thread safe
+
+Incoming request should create a context and outgoing calls to servers should accept a context
+When a context is cancelled all context derived from it are also cancelled 
+
+* Context implementation details
+- Tree of immutable context nodes
+- Context values are a node
+- Value lookup goes backups up the tree
+
+* Example context chain
+.code ./context_chain_example.go
+- put some image here
+
+* When should you use context.Context
+- Every HTTP/RPC call should have the ability to time out
+- Not just timeouts, but whenever you need to cancel a request because results are no longer needed
+- Any function that can block or take a long time to finish should have a context
+
+* How to create a context
+- Use context.Background() at the beginning of an HTTP/RPC request
+- If you don't have a context and need to pass a context to a function, you can use context.TODO
+- Give sub request their own subcontext if they need other timeouts
+
+* How to integration context.Context
+- As the first variable of a function call
+	func (d *Dialer) DialContext(ctx context.Context, network, address string) (Conn, error)
+- As an optional value on a request struct
+	func (r *Request) WithContext(ctx context.Context) *Request 
+- The variable name is usually ctx
+- Do not store the store the context in a struct (exception http.request)
+
+
+* Context package caveats
+- Create pattern of closing context (especially timeout context)
+- context.WithTimeout uses an time.AfterFunc which does not get garbage collected until the timer expires
+.code ./context_cancel.go /^func PleaseCancelMe/,/^}/
+
+* Request scoped values 
+- Creates Values nodes in the context chain, generally used to add some scoped data to a request ie) userID, requestID
+- Context.Value should inform, not control. The content of context.Value is for maintainers, should not users and never be required input to a function or result
+
+* Final notes
+- A good mental model of using context is that it should flow through your program like a river.
+- Context.Value should inform, not control
+
