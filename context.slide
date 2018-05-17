@@ -3,8 +3,6 @@ Context on context
 Tags: context
 
 Dennis Nguyen
-Software Engineer, Gannett
-dnguy078 @ucr.edu
 
 * Talk Sections
 - Why context exist
@@ -54,6 +52,15 @@ When a context is cancelled all context derived from it are also cancelled
 - Use context.Background() at the beginning of an HTTP/RPC request
 - If you don't have a context and need to pass a context to a function, you can use context.TODO
 - Give sub request their own subcontext if they need other timeouts
+	func Background() Context
+	func TODO() Context
+	func WithCancel(parent Context) (ctx Context, cancel CancelFunc)
+	func WithDeadline(parent Context, d time.Time) (Context, CancelFunc)
+	func WithTimeout(parent Context, timeout time.Duration) (Context, CancelFunc)
+	func WithValue(parent Context, key, val interface{}) Context
+
+* Context Interface
+.code ./context_example.go
 
 * How to integration context.Context
 - As the first variable of a function call
