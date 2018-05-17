@@ -80,6 +80,21 @@ When a context is cancelled all context derived from it are also cancelled
 - Creates Values nodes in the context chain, generally used to add some scoped data to a request ie) userID, requestID
 - Context.Value should inform, not control. The content of context.Value is for maintainers, should not users and never be required input to a function or result
 
+* HTTPTrace and context debug patterns
+	req, _ := http.NewRequest("GET", "http://example.com", nil)
+	trace := &httptrace.ClientTrace{
+		DNSDone: func(dnsInfo httptrace.DNSDoneInfo) {
+			fmt.Printf("DNS Info: %+v\n", dnsInfo)
+		},
+		GotConn: func(connInfo httptrace.GotConnInfo) {
+			fmt.Printf("Got Conn: %+v\n", connInfo)
+		},
+	}
+	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
+	if _, err := http.DefaultTransport.RoundTrip(req); err != nil {
+		log.Fatal(err)
+	}
+
 * Final notes
 - A good mental model of using context is that it should flow through your program like a river.
 - Context.Value should inform, not control
